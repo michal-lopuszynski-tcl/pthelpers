@@ -1,5 +1,5 @@
 import functools
-from typing import Union
+from typing import Any, Union
 
 import torch.fx
 
@@ -16,6 +16,11 @@ __all__ = (
     "get_devices",
     "get_device",
 )
+
+
+def get_type_name(o: Any) -> str:
+    to = type(o)
+    return to.__module__ + "." + to.__name__
 
 
 def symbolic_trace_if_needed(m: torch.nn.Module) -> torch.fx.GraphModule:
@@ -93,9 +98,17 @@ def get_fxnode_name(
         return op + "." + op_name
 
 
-def _split_parent_child_name(target: str) -> tuple[str, str]:
+def _split_module_parent_child_name(target: str) -> tuple[str, str]:
     *parent, name = target.rsplit(".", 1)
     return parent[0] if parent else "", name
+
+
+def replace_submodule_in_place(
+    root_module: torch.nn.Module, submodule_name: str, new_submodule: torch.nn.Module
+) -> None:
+    parent_name, child_name = _split_module_parent_child_name(submodule_name)
+    parent_module = root_module.get_submodule(parent_name)
+    setattr(parent_module, child_name, new_submodule)
 
 
 def replace_fxsubmodule(
@@ -103,7 +116,7 @@ def replace_fxsubmodule(
 ) -> None:
     if node.op != "call_module":
         raise ValueError("Expected call_module node, got {node.op} for {node.name}")
-    parent_name, name = _split_parent_child_name(str(node.target))
+    parent_name, name = _split_module_parent_child_name(str(node.target))
     modules = dict(m.named_modules())
     setattr(modules[parent_name], name, new_module)
 

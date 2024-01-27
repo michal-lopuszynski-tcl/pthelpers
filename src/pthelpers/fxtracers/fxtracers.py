@@ -18,6 +18,7 @@ __all__ = [
     "find_untraceable_nodes",
     "is_leaf_module_default",
     "is_leaf_module_always",
+    "symbolic_trace_easy",
 ]
 
 
@@ -143,3 +144,73 @@ def find_untraceable_nodes(
                 nodes.append(node)
 
     return nodes, indices
+
+
+def _is_compound_module(m: torch.nn.Module) -> bool:
+    return len(list(m.children())) > 0
+
+
+def _get_children_module_names(m: torch.nn.Module) -> list[str]:
+    return [n for n, _ in m.named_children()]
+
+
+def _symbolic_trace(
+    root: Union[torch.nn.Module, Callable[..., Any]],
+    leaf_module_types: tuple[type, ...] = (),
+) -> torch.fx.GraphModule:
+    def __is_leaf_module(m: torch.nn.Module, module_qualified_name: str) -> bool:
+        if isinstance(m, leaf_module_types):
+            return True
+        return is_leaf_module_default(m, module_qualified_name)
+
+    root_traced = symbolic_trace_partial(root, __is_leaf_module)
+    return root_traced
+
+
+def _trace_nested_modules_in_place(
+    root: torch.nn.Module,
+    *,
+    leaf_module_types: tuple[type, ...],
+    nest_module_types: tuple[type, ...],
+    module_path: tuple[str, ...] = (),
+) -> None:
+
+    children_module_names = _get_children_module_names(root)
+
+    for child_module_name in children_module_names:
+        child_module_path = ".".join((*module_path, child_module_name))
+        logger.info(f"Analyzing {child_module_path}")
+        module = root.get_submodule(child_module_name)
+        if _is_compound_module(module):
+            _trace_nested_modules_in_place(
+                module,
+                leaf_module_types=leaf_module_types,
+                nest_module_types=nest_module_types,
+                module_path=(*module_path, child_module_name),
+            )
+        if isinstance(module, nest_module_types):
+            child_module_path = ".".join((*module_path, child_module_name))
+            module_type_name = core.get_type_name(module)
+            msg = f"Replacing submodule {child_module_path} of type {module_type_name}"
+            logger.info(msg)
+            module_tr = _symbolic_trace(module, leaf_module_types=leaf_module_types)
+            core.replace_submodule_in_place(root, child_module_name, module_tr)
+
+
+def symbolic_trace_easy(
+    root: Union[torch.nn.Module, Callable[..., Any]],
+    *,
+    leaf_module_types: tuple[type, ...] = (),
+    nest_module_types: tuple[type, ...] = (),
+) -> torch.fx.GraphModule:
+
+    # WARNING! Currently, this is desrtuctive to root (original module)
+
+    if isinstance(root, torch.nn.Module) and nest_module_types:
+        leaf_module_types = (*leaf_module_types, torch.fx.GraphModule)
+        _trace_nested_modules_in_place(
+            root=root,
+            nest_module_types=nest_module_types,
+            leaf_module_types=leaf_module_types,
+        )
+    return _symbolic_trace(root, leaf_module_types=leaf_module_types)
