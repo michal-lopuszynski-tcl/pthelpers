@@ -192,6 +192,8 @@ def get_fpops_divisor(unit: str, input_shapes: tuple[tuple[int, ...], ...]) -> f
         return 1
     elif unit == "gflops":
         return 1.0e9
+    elif unit == "mflops":
+        return 1.0e6
     elif unit == "macs":
         # This is very approximate
         return 2.0
