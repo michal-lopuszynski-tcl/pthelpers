@@ -8,6 +8,7 @@ all: build
 build:
 	python3 -mbuild
 
+check_fast: -check_black -check_isort -check_flake8
 
 check: -check_black -check_isort -check_flake8 -check_mypy
 
