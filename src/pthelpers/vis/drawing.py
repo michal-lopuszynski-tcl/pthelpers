@@ -94,7 +94,7 @@ def vis_module(
     edges: list[tuple[str, str]] = []
 
     def _load_arg(
-        a: Union[tuple[torch.fx.node.Argument], dict[str, torch.fx.node.Argument]]
+        a: Union[tuple[torch.fx.node.Argument], dict[str, torch.fx.node.Argument]],
     ) -> Any:
         return torch.fx.graph.map_arg(a, lambda n: env[n.name]["node_result"])
 
