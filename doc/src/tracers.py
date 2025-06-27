@@ -100,7 +100,7 @@ model_fx = pthelpers.fxtracers.symbolic_trace_leaf_types(
     leaf_module_types=NAFNET_LEAF_MODULE_TYPES,
 )
 
-pthelpers.vis.vis_module(model_fx)
+pthelpers.vis.vis_module(model_fx, input_shapes=[(1, 3, 256, 256)])
 
 # %% [markdown]
 # We can also have a look at the individual `NAFBlock`.
@@ -114,4 +114,24 @@ block_fx = pthelpers.fxtracers.symbolic_trace_leaf_types(
     leaf_module_types=NAFNET_LEAF_MODULE_TYPES,
 )
 
-pthelpers.vis.vis_module(block_fx)
+pthelpers.vis.vis_module(block_fx, input_shapes=[(1, 16, 256, 256)])
+
+
+# %%
+class MermaidGraph:
+    def _repr_markdown_(self):
+        s = """```mermaid
+graph LR;
+    A--> B & C & D;
+    B--> A & E;
+    C--> A & E;
+    D--> A & E;
+    E--> B & C & D;
+```"""
+        return s
+
+
+# %%
+MermaidGraph()
+
+# %%
