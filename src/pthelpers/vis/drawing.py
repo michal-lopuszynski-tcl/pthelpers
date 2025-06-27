@@ -18,9 +18,9 @@ class Digraph(graphviz.graphs.Digraph):
     visualized in jupyter.
 
     The solution is a bit hacky, and it might break or become obsolete in future
-    versions ofgraphviz jupyter.
+    versions of graphviz jupyter.
 
-    It works by addign random prefixes by svg styles.
+    It works by adding random prefixes by svg styles.
     """
 
     @staticmethod
