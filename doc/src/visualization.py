@@ -119,6 +119,6 @@ class SampleNet1(torch.nn.Module):
 # %%
 nn = SampleNet1()
 
-pthelpers.vis.vis_module(nn, input_shapes=[(1, 3, 224, 224)])
+pthelpers.vis.vis_module(nn, input_shapes=(1, 3, 224, 224))
 
 # %%

@@ -70,7 +70,7 @@ class SampleNet1(torch.nn.Module):
 ``` python
 nn = SampleNet1()
 
-pthelpers.vis.vis_module(nn, input_shapes=[(1, 3, 224, 224)])
+pthelpers.vis.vis_module(nn, input_shapes=(1, 3, 224, 224))
 ```
 
 ![](visualization_files/figure-commonmark/cell-6-output-1.svg)
