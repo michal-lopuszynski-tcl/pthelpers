@@ -55,7 +55,7 @@ def is_leaf_module_default(m: torch.nn.Module, module_qualified_name: str) -> bo
 
 def symbolic_trace_leaf_fn(
     root: Union[torch.nn.Module, Callable[..., Any]],
-    is_leaf_module_fn: Optional[Callable[[torch.nn.Module, str], bool]] = None,
+    is_leaf_module_fn: Callable[[torch.nn.Module, str], bool],
     concrete_args: Optional[dict[str, Any]] = None,
 ) -> torch.fx.GraphModule:
     """
@@ -78,7 +78,7 @@ def symbolic_trace_leaf_types(
     concrete_args: Optional[dict[str, Any]] = None,
 ) -> torch.fx.GraphModule:
 
-    def __is_leaf_module(m: torch.nn.Module, module_qualified_name: str):
+    def __is_leaf_module(m: torch.nn.Module, module_qualified_name: str) -> bool:
         # Why `type(m) is t` instead of `isinstance(m, non_leaf_module_types`)?
         # Some libraries inherit from say torch.nn.Linear, in such a case we want to be
         # explicit and let the user decide what types exactly should be traced
