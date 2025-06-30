@@ -71,7 +71,7 @@ def _add_edge_to_graph(
 
 def vis_module(
     module: torch.nn.Module,
-    input_shapes: Optional[tuple[tuple[int, ...]]] = None,
+    input_shapes: Optional[tuple[tuple[int, ...] | tuple[int]]] = None,
     ignore_getattr: bool = False,
     get_style_fn: collections.abc.Callable[..., Any] = styles.get_std_style,
     saving_path: Optional[Union[str, bytes, os.PathLike]] = None,
@@ -80,8 +80,10 @@ def vis_module(
     traced_module = core.symbolic_trace_if_needed(module)
 
     if input_shapes is not None:
+        if isinstance(input_shapes[0], int):
+            input_shapes_ = (input_shapes,)
         compute_result = True
-        sample_input_tensors = (torch.rand(*shape) for shape in input_shapes)
+        sample_input_tensors = (torch.rand(*shape) for shape in input_shapes_)
         args_iter = iter(sample_input_tensors)
     else:
         compute_result = False

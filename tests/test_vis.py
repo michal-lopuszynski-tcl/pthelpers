@@ -61,7 +61,7 @@ class SampleNet1(torch.nn.Module):
 
 
 def make_arg_list():
-    input_shapes = [(), None, [(1, 3, 224, 224)]]
+    input_shapes = [(), None, ((1, 3, 224, 224),), (1, 3, 224, 224)]
     ignore_getattrs = [None, True, False]
     get_style_fns = [
         None,
