@@ -141,7 +141,7 @@ def test_calc_fpops_conv2d_dwise(test_params):
     input_shape = test_params["input_shape"]
     op_params = test_params["op_params"]
     m = WrapDwiseConv2d(**op_params)
-    fpops = pth.stats.calc_fpops(m, input_shapes=(input_shape,), unit="flops")
+    fpops = pth.fxstats.calc_fpops(m, input_shapes=(input_shape,), unit="flops")
     sample_inputs = pth.make_rand_tensors((input_shape,), torch.device("cpu"))
     output = m(sample_inputs[0])
     output_shape = tuple(output.shape)

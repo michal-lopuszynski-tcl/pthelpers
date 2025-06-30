@@ -239,5 +239,5 @@ def test_calc_fpops_conv2d(test_params):
     op_params = test_params["op_params"]
 
     m = WrapConv2d(**op_params)
-    fpops = pth.stats.calc_fpops(m, input_shapes=(input_shape,), unit="flops")
+    fpops = pth.fxstats.calc_fpops(m, input_shapes=(input_shape,), unit="flops")
     assert fpops == expected_fpops

@@ -78,6 +78,6 @@ def test_calc_fpops_linear(test_params):
     input_shape = test_params["input_shape"]
 
     m = WrapLinear(**op_params)
-    fpops = pth.stats.calc_fpops(m, input_shapes=(input_shape,), unit="flops")
+    fpops = pth.fxstats.calc_fpops(m, input_shapes=(input_shape,), unit="flops")
     _ = m(torch.rand(input_shape))
     assert fpops == expected_fpops

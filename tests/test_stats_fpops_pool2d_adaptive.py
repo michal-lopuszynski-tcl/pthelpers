@@ -68,7 +68,7 @@ def test_calc_fpops_pool2d_nonadaptive(test_params):
     m = WrapPool2dAdaptive(**op_params)
 
     sample_inputs = pth.make_rand_tensors((input_shape,), torch.device("cpu"))
-    fpops = pth.stats.calc_fpops(m, input_shapes=(input_shape,), unit="flops")
+    fpops = pth.fxstats.calc_fpops(m, input_shapes=(input_shape,), unit="flops")
     output = m(sample_inputs[0])
     output_shape = tuple(output.shape)
     assert output_shape == expected_output_shape

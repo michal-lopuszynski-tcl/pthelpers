@@ -14,6 +14,8 @@ def _get_params_divisor(unit: str) -> float:
     unit = unit.lower()
     if unit == "params":
         return 1.0
+    elif unit == "kparams":
+        return 1.0e3
     elif unit == "mparams":
         return 1.0e6
     else:
