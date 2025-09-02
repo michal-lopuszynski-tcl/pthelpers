@@ -82,6 +82,8 @@ def vis_module(
     if input_shapes is not None:
         if isinstance(input_shapes[0], int):
             input_shapes_ = (input_shapes,)
+        else:
+            input_shapes_ = input_shapes
         compute_result = True
         sample_input_tensors = (torch.rand(*shape) for shape in input_shapes_)
         args_iter = iter(sample_input_tensors)
