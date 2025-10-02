@@ -69,6 +69,14 @@ def _add_edge_to_graph(
     dot.edge(node_name1, node_name2, **edge_style)
 
 
+class ModDict:
+    def __init__(self, root_module):
+        self.root_module = root_module
+
+    def __getitem__(self, key):
+        return self.root_module.get_submodule(key)
+
+
 def vis_module(
     module: torch.nn.Module,
     input_shapes: Optional[tuple[tuple[int, ...] | tuple[int]]] = None,
@@ -93,7 +101,8 @@ def vis_module(
 
     env: Dict[str, Dict[str, Any]] = {}
     output_node_names: List[str] = []
-    module_dict = dict(traced_module.named_modules())
+    # module_dict = dict(traced_module.named_modules())
+    module_dict = ModDict(traced_module)
 
     edges: list[tuple[str, str]] = []
 
