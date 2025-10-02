@@ -12,6 +12,7 @@ __all__ = (
     "get_module",
     "make_rand_tensors",
     "replace_fxsubmodule",
+    "replace_submodule_in_place",
     "symbolic_trace_if_needed",
     "get_devices",
     "get_device",
@@ -112,13 +113,11 @@ def replace_submodule_in_place(
 
 
 def replace_fxsubmodule(
-    m: torch.fx.GraphModule, node: torch.fx.Node, new_module: torch.nn.Module
+    root_module: torch.fx.GraphModule, node: torch.fx.Node, new_module: torch.nn.Module
 ) -> None:
     if node.op != "call_module":
         raise ValueError("Expected call_module node, got {node.op} for {node.name}")
-    parent_name, name = _split_module_parent_child_name(str(node.target))
-    modules = dict(m.named_modules())
-    setattr(modules[parent_name], name, new_module)
+    replace_submodule_in_place(root_module, node.target, new_module)
 
 
 def make_rand_tensors(
