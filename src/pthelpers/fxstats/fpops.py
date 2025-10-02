@@ -197,6 +197,9 @@ def get_fpops_divisor(unit: str, input_shapes: tuple[tuple[int, ...], ...]) -> f
     elif unit == "macs":
         # This is very approximate
         return 2.0
+    elif unit == "mmacs":
+        # This is very approximate
+        return 2.0e6
     elif unit == "gmacs":
         # This is very approximate
         return 2.0e9
