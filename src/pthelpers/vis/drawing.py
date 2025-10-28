@@ -84,7 +84,11 @@ def vis_module(
     get_style_fn: collections.abc.Callable[..., Any] = styles.get_std_style,
     saving_path: Optional[Union[str, bytes, os.PathLike]] = None,
     saving_format: str = "pdf",
+    device: Optional[torch.device] = None,
 ) -> graphviz.Digraph:
+    if device is None:
+        device = core.get_device(module)
+
     traced_module = core.symbolic_trace_if_needed(module)
 
     if input_shapes is not None:
@@ -93,7 +97,9 @@ def vis_module(
         else:
             input_shapes_ = input_shapes
         compute_result = True
-        sample_input_tensors = (torch.rand(*shape) for shape in input_shapes_)
+        sample_input_tensors = (
+            torch.rand(*shape, device=device) for shape in input_shapes_
+        )
         args_iter = iter(sample_input_tensors)
     else:
         compute_result = False
@@ -126,7 +132,7 @@ def vis_module(
 
     for i, node in enumerate(traced_module.graph.nodes):
         node_meta = {"node": node, "node_idx": i}
-
+        # print(node.op, node.target)
         if node.op == "placeholder":
             if compute_result:
                 assert args_iter is not None
@@ -137,6 +143,9 @@ def vis_module(
         elif node.op == "call_function":
             if compute_result:
                 result = node.target(*_load_arg(node.args), **_load_arg(node.kwargs))
+                # args = _load_arg(node.args)
+                # print(type(args[0]), len(args[0]))
+                # result = node.target(*args, **_load_arg(node.kwargs))
         elif node.op == "call_method":
             if compute_result:
                 self_obj, *sample_input_tensors = _load_arg(node.args)
